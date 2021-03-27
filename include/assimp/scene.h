@@ -73,57 +73,74 @@ extern "C" {
 
 // -------------------------------------------------------------------------------
 /** 
- * A node in the imported hierarchy.
+ * A node in the imported hierarchy. 
+ * 导入层次中的节点
  *
  * Each node has name, a parent node (except for the root node),
  * a transformation relative to its parent and possibly several child nodes.
  * Simple file formats don't support hierarchical structures - for these formats
  * the imported scene does consist of only a single root node without children.
+ * 每个节点都有一个名称、父节点（根节点除外）、相对于父节点的变换矩阵，可能还有几个字节点。
+ * 简单文件格式不支持层次结构，对于这些格式，导入的场景由一个没有字节点的根节点组成。
  */
 // -------------------------------------------------------------------------------
 struct ASSIMP_API aiNode
 {
     /** The name of the node.
+     * 节点名称 
      *
      * The name might be empty (length of zero) but all nodes which
      * need to be referenced by either bones or animations are named.
      * Multiple nodes may have the same name, except for nodes which are referenced
      * by bones (see #aiBone and #aiMesh::mBones). Their names *must* be unique.
-     *
+     * 名称可能为空（长度为0），但是所有被骨骼和动画所引用的节点都是被命名的。
+     * 除了被骨骼引用的节点（他们的名称必须唯一），多个节点可以有相同的名称。
+     * 
      * Cameras and lights reference a specific node by name - if there
      * are multiple nodes with this name, they are assigned to each of them.
+     * 相机和灯光通过节点名称引用一个特定节点。如果有多个节点具有此名称，则将它们分配给每个节点。
      * <br>
      * There are no limitations with regard to the characters contained in
      * the name string as it is usually taken directly from the source file.
+     * 对于名称字符串中包含的字符没有限制，因为它通常直接从源文件中获取。
      *
      * Implementations should be able to handle tokens such as whitespace, tabs,
      * line feeds, quotation marks, ampersands etc.
-     *
+     * 实现应该能够处理诸如空格、制表符、换行符、引号、&号等标记。
+     * 
      * Sometimes assimp introduces new nodes not present in the source file
      * into the hierarchy (usually out of necessity because sometimes the
      * source hierarchy format is simply not compatible). Their names are
      * surrounded by @verbatim <> @endverbatim e.g.
      *  @verbatim<DummyRootNode> @endverbatim.
+     * 有时，assimp会引入源文件中没有的节点到层次结构中。（通常是出于需要，因为有时源层次结构格式就是不兼容）
+     * 他们的名字被<>包围
      */
     C_STRUCT aiString mName;
 
     /** The transformation relative to the node's parent. */
+    /** 对对于父节点的变换矩阵 */
     C_STRUCT aiMatrix4x4 mTransformation;
 
     /** Parent node. nullptr if this node is the root node. */
+    /** 父节点，如果该节点是根节点，则为空 */
     C_STRUCT aiNode* mParent;
 
     /** The number of child nodes of this node. */
+    /** 该节点的子节点个数 */
     unsigned int mNumChildren;
 
     /** The child nodes of this node. nullptr if mNumChildren is 0. */
+    /** 该节点的子节点，如果mNumChildren=0，则为空 */
     C_STRUCT aiNode** mChildren;
 
     /** The number of meshes of this node. */
+    /** 该节点包含的mesh个数 */
     unsigned int mNumMeshes;
 
     /** The meshes of this node. Each entry is an index into the
       * mesh list of the #aiScene.
+      * 该节点包含的mesh，每个mesh元素都是aiScene进入mesh列表的索引
       */
     unsigned int* mMeshes;
 
@@ -131,6 +148,7 @@ struct ASSIMP_API aiNode
       *  Whether any metadata is generated depends on the source file format. See the
       * @link importer_notes @endlink page for more information on every source file
       * format. Importers that don't document any metadata don't write any.
+      * 节点的元数据，如果没有，则为空。元数据是否生成，取决于源文件的格式。
       */
     C_STRUCT aiMetadata* mMetaData;
 
@@ -249,56 +267,79 @@ struct aiScene
     * this value is 0, no flags are set. Most applications will
     * want to reject all scenes with the AI_SCENE_FLAGS_INCOMPLETE
     * bit set.
+    * AI_SCENE_FLAGS_XXX标记的任何组合。默认情况下，这个值是0，没有设置标志。
+    * 大多数应用程序将希望拒绝所有设置了AI_SCENE_FLAGS_INCOMPLETE位的场景。
     */
     unsigned int mFlags;
 
     /** The root node of the hierarchy.
-    *
+    * 层次结构的根节点
     * There will always be at least the root node if the import
     * was successful (and no special flags have been set).
     * Presence of further nodes depends on the format and content
     * of the imported file.
+    * 如果导入成功(并且没有设置特殊标志)，那么至少会有根节点。是否存在更
+    * 多节点取决于导入文件的格式和内容。
     */
     C_STRUCT aiNode* mRootNode;
 
-    /** The number of meshes in the scene. */
+    /**
+     * The number of meshes in the scene..
+     * 场景中网格的数量
+     */
     unsigned int mNumMeshes;
 
     /** The array of meshes.
-    *
+    * 网格数组。
+    * 
     * Use the indices given in the aiNode structure to access
     * this array. The array is mNumMeshes in size. If the
     * AI_SCENE_FLAGS_INCOMPLETE flag is not set there will always
     * be at least ONE material.
+    * 使用在aiNode结构中给出的索引来访问这个数组。数组的大小是mNumMeshes。
+    * 如果AI_SCENE_FLAGS_INCOMPLETE的标识没有设置，将总是至少有一个材质。
     */
     C_STRUCT aiMesh** mMeshes;
 
-    /** The number of materials in the scene. */
+    /**
+     * The number of materials in the scene.
+     * 场景中材质的数量。
+     */
     unsigned int mNumMaterials;
 
     /** The array of materials.
+    * 材质数组
     *
     * Use the index given in each aiMesh structure to access this
     * array. The array is mNumMaterials in size. If the
     * AI_SCENE_FLAGS_INCOMPLETE flag is not set there will always
     * be at least ONE material.
+    * 使用每个aiMesh结构中给定的索引来访问这个数组。数组的大小是mNumMaterials。
+    * 如果AI_SCENE_FLAGS_INCOMPLETE的标识没有设置总是会有至少一个材质，
     */
     C_STRUCT aiMaterial** mMaterials;
 
-    /** The number of animations in the scene. */
+    /**
+     * The number of animations in the scene..
+     * 场景中的动画数量
+     */
     unsigned int mNumAnimations;
 
     /** The array of animations.
-    *
+    * 动画数组
     * All animations imported from the given file are listed here.
     * The array is mNumAnimations in size.
     */
     C_STRUCT aiAnimation** mAnimations;
 
-    /** The number of textures embedded into the file */
+    /**
+     * The number of textures embedded into the file.
+     * 材质数量
+     */
     unsigned int mNumTextures;
 
     /** The array of embedded textures.
+    * 纹理数组
     *
     * Not many file formats embed their textures into the file.
     * An example is Quake's MDL format (which is also used by
@@ -308,11 +349,12 @@ struct aiScene
 
     /** The number of light sources in the scene. Light sources
     * are fully optional, in most cases this attribute will be 0
-        */
+    * 场景中的光源数量。光源是可选的，大多数情况下，该属性为0
+    */
     unsigned int mNumLights;
 
     /** The array of light sources.
-    *
+    * 光源数组
     * All light sources imported from the given file are
     * listed here. The array is mNumLights in size.
     */
@@ -320,11 +362,12 @@ struct aiScene
 
     /** The number of cameras in the scene. Cameras
     * are fully optional, in most cases this attribute will be 0
-        */
+    * 场景中的相机数量
+    */
     unsigned int mNumCameras;
 
     /** The array of cameras.
-    *
+    * 相机数组
     * All cameras imported from the given file are listed here.
     * The array is mNumCameras in size. The first camera in the
     * array (if existing) is the default camera view into
@@ -334,7 +377,7 @@ struct aiScene
 
     /**
      *  @brief  The global metadata assigned to the scene itself.
-     *
+     * 场景的全局元数据
      *  This data contains global metadata which belongs to the scene like
      *  unit-conversions, versions, vendors or other model-specific data. This
      *  can be used to store format-specific metadata as well.
@@ -342,6 +385,7 @@ struct aiScene
     C_STRUCT aiMetadata* mMetaData;
 
     /** The name of the scene itself.
+    * 场景名称
      */
     C_STRUCT aiString mName;
 
